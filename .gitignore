@@ -1,0 +1,23 @@
+# 1. python virtual environment
+.venv/
+env/
+venv/
+ENV/
+
+# 2. python cache
+__pycache__/
+*.py[cod]
+
+# 3. environment variables
+.env
+
+
+# 4. OS specific files
+.DS_Store
+Thumbs.db
+
+# 5. Data Files
+*.json
+*.csvb
+*.parquet
+logs/pipeline.log
