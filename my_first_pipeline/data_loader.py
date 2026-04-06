@@ -15,11 +15,11 @@ logging.basicConfig(
 class LocalDataLoader:
     def __init__(self, folder_path: str):
         self.folder_path = folder_path
-        logging.info(f"DataLoader initialized for folder: {self.folder_path}")
+        logging.info(f"DataLoader initialized for folder: {self.folder_path} - {log_file_name}")
     
     def fetch_files(self, file_name: str):
-        full_path = os.path.join(self.folder_path, file_name)
-        logging.info(f"Attempting to fetch: {file_name}")
+        full_path = os.path.join("..",self.folder_path, file_name)
+        logging.info(f"Attempting to fetch: {file_name} - {full_path}")
 
         if not os.path.exists(full_path):
             logging.error(f"File Not Found: {full_path}")

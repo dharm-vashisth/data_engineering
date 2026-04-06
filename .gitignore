@@ -20,4 +20,5 @@ Thumbs.db
 *.json
 *.csvb
 *.parquet
+data_inputs/
 logs/pipeline.log
