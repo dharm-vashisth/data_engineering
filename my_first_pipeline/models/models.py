@@ -1,11 +1,11 @@
-from pydantic import BaseModel, Field,field_validator
+from pydantic import BaseModel, Field,field_validator, EmailStr, ValidationError
 from typing import Optional
 
 # Data Contract
 class UserData(BaseModel):
     user_id:int
     username:str
-    email:str
+    email:EmailStr # auto validation for email type string using pydantic.
     age:Optional[int] = None
 
     # validation for business logic
@@ -16,26 +16,37 @@ class UserData(BaseModel):
             raise ValueError(f"User id must be a valid positive number. Got {value}")
         return value
     
+    @field_validator('age')
+    @classmethod
+    def validate_age(cls,value):
+        if value<1 or value > 120:
+            raise ValueError(f"Age must be valid in the range from 1-120. Got {value}")
+        return value
+    
 
 if __name__ == "__main__":
     def get_bulk_data():
         return [
             # good data
             {'user_id': 1,'username': 'Dharm Vashisth','email': 'data.dharm.2021@gmail.com','age': 27},
-            # field validation failure
+            # bad data: user id field validation failure
             {'user_id': -32,'username': 'Alice','email': 'alice@gmail.com'},
-            # pydantic will handle the user id itself using type casting.
+            # good data: pydantic will handle the user id itself using type casting.
             {'user_id': '12','username': 'Ronny','email': 'ronny@gmail.com'},
-             # pydantic will handle the user id itself using type casting and field validation failure
+             # bad data: pydantic will handle the user id itself using type casting and field validation failure
             {'user_id': '-12','username': 'Rocky','email': 'rocky@gmail.com'},
+            # bad data: age field validation failure
+            {'user_id': 22,'username': 'Alice D','email': 'alice.d@gmail.com', 'age':121},
+            # bad data: email field validation failure using pydantic emailstr type
+            {'user_id': 12,'username': 'Don D','email': 'don.d@gmailcom'},
         ]
     
     for data in get_bulk_data():
         # validate data
         try:
-            user1 = UserData(**data)
-            print(f"✅ Validation successful for the data {user1.username}\n")
-        except Exception as e:
+            user = UserData(**data)
+            print(f"✅ Validation successful for the data {user.username}\n")
+        except ValidationError as e:
             print(f"❌ Data validation failed for {data['username']}: {e.json()}\n")
 
 
