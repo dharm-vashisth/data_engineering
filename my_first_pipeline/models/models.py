@@ -8,7 +8,7 @@ class UserData(BaseModel):
     email:str
     age:Optional[int] = None
 
-    # validation
+    # validation for business logic
     @field_validator('user_id')
     @classmethod
     def validate_user_id(cls,value):
@@ -18,27 +18,25 @@ class UserData(BaseModel):
     
 
 if __name__ == "__main__":
-    good_data = {
-        'user_id': 1,
-        'username': 'Dharm Vashisth',
-        'email': 'data.dharm.2021@gmail.com',
-        'age': 27
-    }
-    bad_data = {
-        'user_id': -32,
-        'username': 'Alice',
-        'email': 'alice@gmail.com',
-    }
-
-    # validate data
-    try:
-        user1 = UserData(**good_data)
-        print(f"Validation successful for the data {user1.username}")
-        user2 = UserData(**bad_data)
-        print(f"Validation successful for the data {user2.username}")
+    def get_bulk_data():
+        return [
+            # good data
+            {'user_id': 1,'username': 'Dharm Vashisth','email': 'data.dharm.2021@gmail.com','age': 27},
+            # field validation failure
+            {'user_id': -32,'username': 'Alice','email': 'alice@gmail.com'},
+            # pydantic will handle the user id itself using type casting.
+            {'user_id': '12','username': 'Ronny','email': 'ronny@gmail.com'},
+             # pydantic will handle the user id itself using type casting and field validation failure
+            {'user_id': '-12','username': 'Rocky','email': 'rocky@gmail.com'},
+        ]
     
-    except Exception as e:
-        print(f"Data validation failed: {e}")
+    for data in get_bulk_data():
+        # validate data
+        try:
+            user1 = UserData(**data)
+            print(f"✅ Validation successful for the data {user1.username}\n")
+        except Exception as e:
+            print(f"❌ Data validation failed for {data['username']}: {e.json()}\n")
 
 
 
