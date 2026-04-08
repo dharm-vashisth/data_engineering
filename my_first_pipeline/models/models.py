@@ -1,16 +1,16 @@
 from pydantic import BaseModel, Field,field_validator, EmailStr, ValidationError
 from typing import Optional
-import logging,os
-from pathlib import Path
-root = Path(__file__).resolve().parents[2]
-log_file = os.path.join(root,"logs","validation_failed.log")
-
-logging.basicConfig(
-    level=logging.ERROR,
-    format='%(asctime)s - %(levelname)s - %(filename)s - %(message)s',
-    filename= log_file,
-    filemode='a'
+import os
+from logger import get_logging_loader
+from constants import (
+    root, 
+    log_directory_name
 )
+
+
+# custom logger
+log_file = os.path.join(root,log_directory_name,"validation_failed.log")
+validation_logger = get_logging_loader("validation_logger",log_file)
 
 # Data Contract
 class UserData(BaseModel):
@@ -24,14 +24,14 @@ class UserData(BaseModel):
     @classmethod
     def validate_user_id(cls,value):
         if value<=0:
-            logging.error(f"User id must be a valid positive number. Got {value}")
+            validation_logger.error(f"User id must be a valid positive number. Got {value}")
         return value
     
     @field_validator('age')
     @classmethod
     def validate_age(cls,value):
         if value<1 or value > 120:
-            logging.error(f"Age must be valid in the range from 1-120. Got {value}")
+            validation_logger.error(f"Age must be valid in the range from 1-120. Got {value}")
         return value
     
 
