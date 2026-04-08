@@ -1,9 +1,9 @@
 from pathlib import Path
 import logging
 import os
+from models.constants import root
 
 # set up for logging.
-root = Path(__file__).resolve().parents[1]
 log_file_name = os.path.join(root,"logs","pipeline.log")
 
 logging.basicConfig(
