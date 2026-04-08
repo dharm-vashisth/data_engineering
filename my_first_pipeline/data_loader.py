@@ -1,8 +1,10 @@
+from pathlib import Path
 import logging
 import os
 
 # set up for logging.
-log_file_name = os.path.join("..","logs","pipeline.log")
+root = Path(__file__).resolve().parents[1]
+log_file_name = os.path.join(root,"logs","pipeline.log")
 
 logging.basicConfig(
     level=logging.INFO,
@@ -18,7 +20,7 @@ class LocalDataLoader:
         logging.info(f"DataLoader initialized for folder: {self.folder_path}")
     
     def fetch_files(self, file_name: str):
-        full_path = os.path.join("..",self.folder_path, file_name)
+        full_path = os.path.join(root,self.folder_path, file_name)
         logging.info(f"Attempting to fetch: {file_name}")
 
         if not os.path.exists(full_path):

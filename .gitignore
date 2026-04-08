@@ -21,4 +21,4 @@ Thumbs.db
 *.csvb
 *.parquet
 data_inputs/
-logs/pipeline.log
+logs/
