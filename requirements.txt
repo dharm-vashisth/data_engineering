@@ -2,6 +2,8 @@ annotated-types==0.7.0
 dnspython==2.8.0
 email-validator==2.3.0
 idna==3.11
+polars==1.39.3
+polars-runtime-32==1.39.3
 pydantic==2.12.5
 pydantic_core==2.41.5
 typing-inspection==0.4.2
