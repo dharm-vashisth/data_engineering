@@ -12,17 +12,20 @@ if __name__=="__main__":
     df.show()
     # type casting
     df = df.with_columns(
-        pl.col("Salary").cast(pl.Int64)
+        pl.col("Salary").cast(pl.Int64, strict=False)
     )
     
     # total records.
     total_records_salaries = df.select(pl.col("Salary").len()).item()
     # null salary records.
-    null_salaries_df = df.select(pl.col("Salary").null_count()).item()
-    null_salary_percent = (null_salaries_df/total_records_salaries)*100
+    null_salaries_count= df.select(pl.col("Salary").null_count()).item()
+    null_salary_percent = (null_salaries_count/total_records_salaries)*100
 
     if null_salary_percent > 10:
-        bad_data_logger.info(f"Null Salary records are greater than 10% {null_salary_percent}")
+        bad_data_logger.info(f"Null Salary records are greater than 10%. \
+                             \n Null_salary records: {null_salaries_count} \
+                             \n Total Records: {total_records_salaries} \
+                             \n Percentage: {null_salary_percent}%")
     
     filtered_df = df.filter(pl.col("Salary").is_not_null())
     print("Filtered Dataframe with non-null salaries:")
