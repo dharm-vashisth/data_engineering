@@ -25,6 +25,7 @@ if __name__ == "__main__":
     # execute the plan
     print("The plan is going to execute...")
     filtered_df = df.collect()
+    print(f"Initial dataframe from scan_csv is of type {type(df)} \n where as after executing the collect(), dataframe returned is of type {type(filtered_df)}.")
 
     print("plan is executed successfully!")
     print(filtered_df)
