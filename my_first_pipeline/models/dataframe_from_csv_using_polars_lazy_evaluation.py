@@ -1,12 +1,16 @@
 import polars as pl
 import os
-from constants import (root,table_command,)
+from constants import (
+    root,
+    silver_employee_table_command,
+    db_directory_path,
+)
 from logger import get_logging_loader
 import duckdb
 
 file_path = os.path.join(root,"data_inputs","raw_data.csv")
 log_file_path = os.path.join(root,"logs","lazy_evaluation.log")
-db_file_path = os.path.join(root,"database","polars_warehouse.db")
+db_file_path = os.path.join(db_directory_path,"polars_warehouse.db")
 db_log_file_path = os.path.join(root,"logs","polars_warehouse.log")
 
 lazy_logger = get_logging_loader(logger_name="lazy_logger",file_name=log_file_path)
@@ -15,10 +19,10 @@ db_logger = get_logging_loader(logger_name="vault_logger", file_name=db_log_file
 def load_to_polars_warehouse(db:pl.DataFrame):
     # we have the filered_df ready now open the vault and store it.
     con = duckdb.connect(db_file_path)
-    db_logger.info(f"Connection is established with {db}")
+    db_logger.info(f"Connection is established with {con}")
     try:
         # creating table in database using schema.
-        con.execute(table_command)
+        con.execute(silver_employee_table_command)
 
         # temporary table using polars dataframe in duckdb connecting using pyarrow.
         con.register("emp_df",filtered_df)
@@ -43,7 +47,6 @@ def load_to_polars_warehouse(db:pl.DataFrame):
 
 
     except Exception as e:
-        print(e)
         con.execute("ROLLBACK")
         db_logger.error(f"Transactions failed. Hence rolling back.\n {e}")
     finally:
