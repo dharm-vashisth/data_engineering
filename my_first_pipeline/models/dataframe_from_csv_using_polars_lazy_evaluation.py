@@ -1,11 +1,16 @@
 import polars as pl
 import os
-from constants import root
+from constants import (root,table_command,)
 from logger import get_logging_loader
+import duckdb
 
 file_path = os.path.join(root,"data_inputs","raw_data.csv")
 log_file_path = os.path.join(root,"logs","lazy_evaluation.log")
+db_file_path = os.path.join(root,"database","polars_warehouse.db")
+db_log_file_path = os.path.join(root,"logs","polars_warehouse.log")
+
 lazy_logger = get_logging_loader(logger_name="lazy_logger",file_name=log_file_path)
+db_logger = get_logging_loader(logger_name="vault_logger", file_name=db_log_file_path)
 
 if __name__ == "__main__":
     # lazy evaluation
@@ -19,13 +24,50 @@ if __name__ == "__main__":
     )
 
     # explain the plan
-    print("The lazy execution plan:")
+    lazy_logger.info("The lazy execution plan:")
     print(df.explain())
 
     # execute the plan
-    print("The plan is going to execute...")
+    lazy_logger.info("The plan is going to execute...")
     filtered_df = df.collect()
-    print(f"Initial dataframe from scan_csv is of type {type(df)} \n where as after executing the collect(), dataframe returned is of type {type(filtered_df)}.")
-
-    print("plan is executed successfully!")
+    lazy_logger.info(f"Initial dataframe from scan_csv is of type {type(df)} \n where as after executing the collect(), dataframe returned is of type {type(filtered_df)}.")
+    lazy_logger.info("plan is executed successfully!")
     print(filtered_df)
+    
+    # we have the filered_df ready now open the vault and store it.
+    con = duckdb.connect(db_file_path)
+    db_logger.info(f"Connection is established with {db_file_path}")
+    try:
+        # creating table in database using schema.
+        con.execute(table_command)
+
+        # temporary table using polars dataframe in duckdb connecting using pyarrow.
+        con.register("emp_df",filtered_df)
+        
+        # transaction begines
+        con.execute("BEGIN TRANSACTION")
+        db_logger.info("Transaction begins")
+
+        # upset approach
+        con.execute("""
+            delete from silver_employee where id in (select id from emp_df)
+        """)
+
+        con.execute("""
+            insert into silver_employee select * from emp_df
+        """)
+        con.execute("COMMIT")
+
+        db_logger.info("Transaction commited. vault updated successfully!")
+        records =con.execute("select count(1) from silver_employee").fetchone()[0]
+        print(f"Total records: {records}")
+
+
+    except Exception as e:
+        print(e)
+        con.execute("ROLLBACK")
+        db_logger.error(f"Transactions failed. Hence rolling back.\n {e}")
+    finally:
+        con.close()
+
+
