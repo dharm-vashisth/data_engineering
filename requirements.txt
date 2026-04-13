@@ -1,5 +1,6 @@
 annotated-types==0.7.0
 dnspython==2.8.0
+duckdb==1.5.2
 email-validator==2.3.0
 idna==3.11
 polars==1.39.3

@@ -22,3 +22,4 @@ Thumbs.db
 *.parquet
 data_inputs/
 logs/
+database/
