@@ -1,5 +1,5 @@
 import duckdb
-from logger import get_logging_loader
+from utils import get_logging_loader
 from constants import (root, silver_employee_table_command, db_directory_path)
 import os
 

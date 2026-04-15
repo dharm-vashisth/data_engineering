@@ -1,7 +1,7 @@
 from pydantic import BaseModel, Field,field_validator, EmailStr, ValidationError
 from typing import Optional
 import os
-from my_first_pipeline.models.utils import get_logging_loader
+from utils import get_logging_loader
 from constants import (
     root, 
     log_directory_name

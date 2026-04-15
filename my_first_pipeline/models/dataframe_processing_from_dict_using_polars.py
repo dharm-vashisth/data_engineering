@@ -1,4 +1,4 @@
-from logger import get_logging_loader
+from utils import get_logging_loader
 from polars.interchange.dataframe import PolarsDataFrame
 import polars as pl
 

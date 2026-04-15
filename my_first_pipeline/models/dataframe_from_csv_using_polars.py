@@ -1,7 +1,7 @@
 import polars as pl
 from constants import root
 import os
-from logger import get_logging_loader
+from utils import get_logging_loader
 
 bad_data_logger = get_logging_loader(logger_name="bad_data_logger",file_name="bad_data_logger.log")
 
