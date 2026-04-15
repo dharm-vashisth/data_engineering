@@ -34,7 +34,8 @@ def get_logging_loader(logger_name:str, file_name:str="unknown_handler.log", lev
 # not a data contract but may face the schema drift.
 def load_data_to_warehouse(
         db_logger, 
-        db_file_path, 
+        data_path,
+        db_path, 
         silver_table_name="silver_employee",
     ):
     # sql commmand
@@ -42,9 +43,9 @@ def load_data_to_warehouse(
 create table if not exists {silver_table_name} as select * from tmp
 """
     # we have the filered_df ready now open the vault and store it.
-    df = pl.read_csv(db_file_path, has_header=True)
+    df = pl.read_csv(data_path, has_header=True)
 
-    con = duckdb.connect(db_file_path)
+    con = duckdb.connect(db_path)
     db_logger.info(f"Connection is established with {con}")
     try:
         # creating table in database using schema.

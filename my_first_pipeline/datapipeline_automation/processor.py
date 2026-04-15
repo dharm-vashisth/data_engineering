@@ -5,6 +5,7 @@ from constants import (
     logger_name,
     log_directory_path,
     data_directory_path,
+    db_directory_path,
 )
 
 # log setup
@@ -21,5 +22,5 @@ if __name__ == "__main__":
     print(args.file)
     file_name = args.file
     data_source_file_path = os.path.join(data_directory_path,file_name)
-    load_data_to_warehouse(db_logger=processor_log, db_file_path=data_source_file_path)
+    load_data_to_warehouse(db_logger=processor_log, data_path=data_source_file_path, db_path=db_directory_path)
     processor_log.info("Pipeline completed.")
