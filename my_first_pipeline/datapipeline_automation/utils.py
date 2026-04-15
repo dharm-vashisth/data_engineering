@@ -1,8 +1,10 @@
 import logging, os
 from constants import (
     root,
-    log_directory_name
+    log_directory_name,
 )
+import duckdb
+import polars as pl
 
 def get_logging_loader(logger_name:str, file_name:str="unknown_handler.log", level:int=logging.INFO, console:bool=False):
     # set up formatter
@@ -27,3 +29,45 @@ def get_logging_loader(logger_name:str, file_name:str="unknown_handler.log", lev
             logger.addHandler(console_handler)
 
     return logger
+
+
+# not a data contract but may face the schema drift.
+def load_data_to_warehouse(
+        db_logger, 
+        db_file_path, 
+        silver_table_name="silver_employee",
+    ):
+    # sql commmand
+    create_table_command = f"""
+create table if not exists {silver_table_name} as select * from tmp
+"""
+    # we have the filered_df ready now open the vault and store it.
+    df = pl.read_csv(db_file_path, has_header=True)
+
+    con = duckdb.connect(db_file_path)
+    db_logger.info(f"Connection is established with {con}")
+    try:
+        # creating table in database using schema.
+        con.register("tmp", df)
+        con.execute(create_table_command)
+        
+        # transaction begines
+        con.execute("BEGIN TRANSACTION")
+        db_logger.info("Transaction begins")
+
+        # upset approach
+        con.execute(f"delete from {silver_table_name} where id in (select id from tmp)")
+
+        con.execute(f"insert into {silver_table_name} select * from tmp")
+        con.execute("COMMIT")
+
+        db_logger.info("Transaction commited. vault updated successfully!")
+        records =con.execute(f"select count(1) from {silver_table_name}").fetchone()[0]
+        print(f"Total records: {records}")
+
+
+    except Exception as e:
+        con.execute("ROLLBACK")
+        db_logger.error(f"Transactions failed. Hence rolling back.\n {e}")
+    finally:
+        con.close()
