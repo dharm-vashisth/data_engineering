@@ -1,7 +1,7 @@
 from pathlib import Path
 import os
 
-root = Path(__file__).resolve().parents[2] # fake commit.
+root = Path(__file__).resolve().parents[2]
 log_directory_name = 'logs'
 db_directory_path = os.path.join(root,"database")
 validation_logger="validation_logger"
