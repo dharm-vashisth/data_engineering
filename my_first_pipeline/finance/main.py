@@ -1,12 +1,13 @@
 import sys
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QVBoxLayout,
-    QWidget, QLineEdit, QPushButton, QLabel
+    QApplication, QMainWindow, QVBoxLayout, QHBoxLayout,
+    QWidget, QLineEdit, QPushButton, QLabel, QFormLayout
 )
 from db.database import init_db, get_connection
 from view_data_window import ViewDataWindow
 
 
+# ---------------- MAIN APP ----------------
 class App(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -16,51 +17,81 @@ class App(QMainWindow):
 
         # Inputs
         self.amount = QLineEdit()
-        self.amount.setPlaceholderText("Amount")
+        self.amount.setPlaceholderText("Enter amount")
 
         self.category = QLineEdit()
-        self.category.setPlaceholderText("Category")
+        self.category.setPlaceholderText("Enter category")
 
         self.note = QLineEdit()
-        self.note.setPlaceholderText("Note")
+        self.note.setPlaceholderText("Enter note")
 
-        # Button
-        self.button = QPushButton("Add Expense")
-        self.button.clicked.connect(self.save_data)
+        # Buttons
+        self.add_btn = QPushButton("Add Expense")
+        self.add_btn.clicked.connect(self.save_data)
 
-        self.view_button = QPushButton("View Expenses")
-        self.view_button.clicked.connect(self.open_view_window)
+        self.view_btn = QPushButton("View Expenses")
+        self.view_btn.clicked.connect(self.open_view_window)
 
         # Status
         self.status = QLabel("")
 
-        # Layout
-        layout = QVBoxLayout()
-        layout.addWidget(self.amount)
-        layout.addWidget(self.category)
-        layout.addWidget(self.note)
-        layout.addWidget(self.button)
-        layout.addWidget(self.view_button)
-        layout.addWidget(self.status)
+        # -------- Layout --------
+        form_layout = QFormLayout()
+        form_layout.addRow("Amount:", self.amount)
+        form_layout.addRow("Category:", self.category)
+        form_layout.addRow("Note:", self.note)
+
+        button_layout = QHBoxLayout()
+        button_layout.addWidget(self.add_btn)
+        button_layout.addWidget(self.view_btn)
+
+        main_layout = QVBoxLayout()
+        main_layout.addLayout(form_layout)
+        main_layout.addLayout(button_layout)
+        main_layout.addWidget(self.status)
 
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(main_layout)
         self.setCentralWidget(container)
 
+        # -------- Styling --------
+        self.setStyleSheet("""
+        QMainWindow {
+            background-color: #1e1e2f;
+            color: white;
+        }
+
+        QLineEdit {
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #444;
+            background-color: #2b2b3c;
+            color: white;
+        }
+
+        QPushButton {
+            padding: 8px;
+            border-radius: 6px;
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        QPushButton:hover {
+            background-color: #45a049;
+        }
+
+        QLabel {
+            color: #ddd;
+        }
+        """)
+
+    # -------- Logic --------
     def save_data(self):
         conn = get_connection()
 
-        # Generate ID
-        result = conn.execute(
-            "SELECT COALESCE(MAX(id), 0) + 1 FROM expenses"
-        ).fetchone()
-
-        next_id = result[0]
-
         conn.execute(
-            "INSERT INTO expenses VALUES (?, ?, ?, ?)",
+            "INSERT INTO expenses (amount, category, note) VALUES (?, ?, ?)",
             (
-                next_id,
                 float(self.amount.text()),
                 self.category.text(),
                 self.note.text()
@@ -70,8 +101,8 @@ class App(QMainWindow):
         conn.close()
 
         self.status.setText("Saved ✅")
+        self.status.setStyleSheet("color: lightgreen;")
 
-        # Clear inputs
         self.amount.clear()
         self.category.clear()
         self.note.clear()
@@ -81,7 +112,7 @@ class App(QMainWindow):
         self.view_window.show()
 
 
-# Run app
+# ---------------- RUN APP ----------------
 app = QApplication(sys.argv)
 
 init_db()

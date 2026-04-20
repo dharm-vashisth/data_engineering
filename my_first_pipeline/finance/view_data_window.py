@@ -11,7 +11,6 @@ class ViewDataWindow(QMainWindow):
         self.setGeometry(300, 300, 500, 400)
 
         self.table = QTableWidget()
-        self.load_data()
 
         layout = QVBoxLayout()
         layout.addWidget(self.table)
@@ -19,29 +18,24 @@ class ViewDataWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+        self.load_data()
 
     def load_data(self):
         conn = get_connection()
-
-        result = conn.execute("SELECT * FROM expenses").fetchall()
-
+        data = conn.execute("SELECT * FROM expenses").fetchall()
         conn.close()
 
-        if not result:
+        if not data:
             return
 
-        # Set table size
-        self.table.setRowCount(len(result))
-        self.table.setColumnCount(len(result[0]))
+        self.table.setRowCount(len(data))
+        self.table.setColumnCount(len(data[0]))
+        self.table.setHorizontalHeaderLabels(["ID", "Amount", "Category", "Note"])
 
-        # Set headers
-        headers = ["ID", "Amount", "Category", "Note"]
-        self.table.setHorizontalHeaderLabels(headers)
-
-        # Fill data
-        for row_idx, row in enumerate(result):
+        for row_idx, row in enumerate(data):
             for col_idx, value in enumerate(row):
-                self.table.setItem(
-                    row_idx, col_idx,
-                    QTableWidgetItem(str(value))
-                )
+                self.table.setItem(row_idx, col_idx, QTableWidgetItem(str(value)))
+
+        self.table.setAlternatingRowColors(True)
+        self.table.setSortingEnabled(True)
+        self.table.resizeColumnsToContents()
