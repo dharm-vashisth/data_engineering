@@ -1,7 +1,9 @@
-from PySide6.QtWidgets import ( QMainWindow, QVBoxLayout,
-    QWidget, QTableWidget, QTableWidgetItem
+from PySide6.QtWidgets import (
+    QMainWindow, QVBoxLayout, QWidget,
+    QTableWidget, QTableWidgetItem
 )
-from db.database import get_connection
+
+from features.expenses import get_all_expenses
 
 class ViewDataWindow(QMainWindow):
     def __init__(self):
@@ -18,12 +20,11 @@ class ViewDataWindow(QMainWindow):
         container = QWidget()
         container.setLayout(layout)
         self.setCentralWidget(container)
+
         self.load_data()
 
     def load_data(self):
-        conn = get_connection()
-        data = conn.execute("SELECT * FROM expenses").fetchall()
-        conn.close()
+        data = get_all_expenses()
 
         if not data:
             return
