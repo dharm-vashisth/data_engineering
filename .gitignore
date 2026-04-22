@@ -23,4 +23,4 @@ Thumbs.db
 data_inputs/
 logs/
 database/
-my_first_pipeline/finance/data/
+finance/data/
