@@ -9,3 +9,5 @@ Python app to manage daily expense per category.
 ### Skills:
 - Python
 - DuckDB
+
+Note: run the main.py for the app to run in ui mode.
