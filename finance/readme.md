@@ -11,3 +11,5 @@ Python app to manage daily expense per category.
 - DuckDB
 
 Note: run the main.py for the app to run in ui mode.
+--
+Developer: Dharm Vashisth
