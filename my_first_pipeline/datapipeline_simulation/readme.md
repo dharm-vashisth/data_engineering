@@ -10,6 +10,6 @@ Reading the file name using command line. fetching raw data using polars and the
 - logging (for tracking)
 
 usage : `datapipeline_automation/processor.py --file raw_data.csv`
-
+Developer: Dharm Vashisth
 ---
 Happy Learning folks!
